@@ -12,11 +12,18 @@ defmodule Bugsnag.Logger do
 
   def handle_event({_level, gl, _event}, state)
   when node(gl) != node() do
+    IO.puts "handle_event node(gl) != node()"
     {:ok, state}
+  end
+
+  def handle_event({:error, gl, event}, state) do
+    IO.puts "handle_event :error"
+    handle_event({:error_report, gl, event}, state)
   end
 
   def handle_event({:error_report, _gl, {_pid, _type, [message | _]}}, state)
   when is_list(message) do
+    IO.puts "handle_event :error_report"
     try do
       error_info = message[:error_info]
 
@@ -40,7 +47,12 @@ defmodule Bugsnag.Logger do
     {:ok, state}
   end
 
-  def handle_event({_level, _gl, _event}, state) do
+  def handle_event({level, _gl, {_pid, _type, [message | _]}}, state) do
+    IO.puts "handle_event else START"
+    IO.puts "level: #{level}" 
+    IO.inspect message
+    IO.puts "handle_event else END"
+
     {:ok, state}
   end
 end
